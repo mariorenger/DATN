@@ -6,7 +6,7 @@ from tensorflow.keras import layers
 
 
 from src.models.newsrec.models.base_model import BaseModel
-from src.models.newsrec.models.layers import AttLayer2, SelfAttention2
+from src.models.newsrec.models.layers import AttLayer2, SelfAttention, SelfAttention2
 
 __all__ = ["NRMSModel"]
 
@@ -132,7 +132,7 @@ class NRMSModel(BaseModel):
         embedded_sequences_title = embedding_layer(sequences_input_title)
 
         y = layers.Dropout(hparams.dropout)(embedded_sequences_title)
-        y = SelfAttention(hparams.head_num, hparams.head_dim, seed=self.seed)([y, y, y])
+        y = SelfAttention2(hparams.head_num, hparams.head_dim, seed=self.seed)([y, y, y])
         y = layers.Dropout(hparams.dropout)(y)
         pred_title = AttLayer2(hparams.attention_hidden_dim, seed=self.seed)(y)
 
