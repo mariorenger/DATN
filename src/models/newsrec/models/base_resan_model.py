@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import tensorflow as tf
 from tensorflow.compat.v1 import keras
+from tensorflow.compat.v1.keras import backend as K
 
 from src.models.deeprec.deeprec_utils import cal_metric
 
@@ -72,6 +73,7 @@ class BaseModel:
         self.train_optimizer = self._get_opt()
 
         self.model.compile(loss=self.loss, optimizer=self.train_optimizer)# run_eagerly=True
+
 
     def _init_embedding(self, file_path):
         """Load pre-trained embeddings as a constant tensor.
@@ -197,7 +199,9 @@ class BaseModel:
         self.loss_all = []
         self.loss_reward = []
 
-        self.opt_rl = tf.compat.v1.train.AdamOptimizer(learning_rate=0.001)
+        # self.opt_rl = tf.compat.v1.train.AdamOptimizer(learning_rate=0.0001)
+        self.opt_rl = tf.keras.optimizers.legacy.Adam(lr=self.hparams.learning_rate)
+        # self.att.ln.compile(loss=self.custom_cross_entropy, optimizer=self.train_optimizer)
 
         for epoch in range(1, self.hparams.epochs + 1):
             step = 0
@@ -211,31 +215,40 @@ class BaseModel:
                 )
             )
 
+
             for batch_data_input in tqdm_util:
 
                 step_result = self.train(batch_data_input)
                 step_data_loss = step_result
                 
-
-                layer_variables = []
                 if hasattr(self.att, 'ln'):
-                    layer_variables.extend(self.att.ln.weights)
-                if hasattr(self.att, 'ln_out'):
-                    layer_variables.extend(self.att.ln_out.weights)
-                if hasattr(self.att, 'ln_1k'):
-                    layer_variables.extend(self.att.ln_1k.weights)
-                    layer_variables.extend(self.att.ln_2k.weights)
-                if hasattr(self.att, 'ln_1q'):
-                    layer_variables.extend(self.att.ln_1q.weights)
-                    layer_variables.extend(self.att.ln_2q.weights)
+                    layer=self.att.ln.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
                 
-                self.loss_all.append(step_data_loss+self.att.rl_loss)
-                self.loss_reward.append(self.att.rl_loss)
+                if hasattr(self.att, 'ln_out'):
+                    layer=self.att.ln_out.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                
+                if hasattr(self.att, 'ln_1k'):
+                    layer=self.att.ln_1k.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                
+                    layer=self.att.ln_2k.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                
+                if hasattr(self.att, 'ln_1q'):
+                    layer=self.att.ln_1q.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
 
-                self.opt_rl.minimize(
-                                    step_data_loss+self.att.rl_loss,
-                                    var_list=layer_variables)
-
+                    layer=self.att.ln_2q.weights
+                    layer[0].assign_sub(tf.fill(layer[0].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                    layer[1].assign_sub(tf.fill(layer[1].shape, self.hparams.learning_rate*step_data_loss+self.att.rl_loss))
+                
 
                 epoch_loss += step_data_loss
                 step += 1

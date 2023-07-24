@@ -112,7 +112,7 @@ class AttLayer(layers.Layer):
 
         z = K.squeeze(z, axis=2) > 0.5
 
-        self.rl_loss = cost_rl
+        self.rl_loss = tf.squeeze(cost_rl)
 
         M = tf.cast(z, tf.float32)
 
@@ -662,8 +662,7 @@ class SelfAttention(layers.Layer):
         A = einsum("abij, abkj -> abik", Q_seq, K_seq) / K.sqrt(
             K.cast(self.head_dim, dtype="float32")
         )
-        print(A.shape)
-        exit()
+
         A = tf.matmul(M[:, tf.newaxis, :, :], A)
 
         A = K.permute_dimensions(

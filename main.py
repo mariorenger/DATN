@@ -57,10 +57,14 @@ print(hparams)
 
 iterator = MINDAllIterator
 
+# My model(main) with denoising
 model = RESANModel(hparams, iterator, seed=seed)
+
+# NAML model with denoising
 # model = RENAMLModel(hparams, iterator, seed=seed)
 
-
+# Trainnig
 model.fit(train_news_file, train_behaviors_file, valid_news_file, valid_behaviors_file)
 
+# Eval
 group_impr_indexes, group_labels, group_preds = model.run_fast_eval(valid_news_file, valid_behaviors_file)
