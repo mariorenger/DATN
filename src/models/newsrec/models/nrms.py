@@ -109,7 +109,7 @@ class NRMSModel(BaseModel):
         )
 
         click_title_presents = layers.TimeDistributed(titleencoder)(his_input_title)
-        y = SelfAttention(hparams.head_num, hparams.head_dim, seed=self.seed)(
+        y = SelfAttention2(hparams.head_num, hparams.head_dim, seed=self.seed)(
             [click_title_presents] * 3
         )
         user_present = AttLayer2(hparams.attention_hidden_dim, seed=self.seed)(y)
