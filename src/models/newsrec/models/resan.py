@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 
-
 from src.models.newsrec.models.base_resan_model import BaseModel
 from src.models.newsrec.models.layers import AttLayer2, SelfAttention, SelfAttention2
 

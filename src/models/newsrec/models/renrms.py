@@ -4,15 +4,14 @@
 import tensorflow.keras as keras
 from tensorflow.keras import layers
 
-
-from src.models.newsrec.models.base_model import BaseModel
+from src.models.newsrec.models.base_resan_model import BaseModel
 from src.models.newsrec.models.layers import AttLayer2, SelfAttention, SelfAttention2
 
-__all__ = ["NRMSModel"]
+__all__ = ["RENRMSModel"]
 
 
-class NRMSModel(BaseModel):
-    """NRMS model(Neural News Recommendation with Multi-Head Self-Attention)
+class RENRMSModel(BaseModel):
+    """RENRMS model(Neural News Recommendation with Multi-Head Self-Attention)
 
     Chuhan Wu, Fangzhao Wu, Suyu Ge, Tao Qi, Yongfeng Huang,and Xing Xie, "Neural News
     Recommendation with Multi-Head Self-Attention" in Proceedings of the 2019 Conference
@@ -109,12 +108,15 @@ class NRMSModel(BaseModel):
         )
 
         click_title_presents = layers.TimeDistributed(titleencoder)(his_input_title)
-        y = SelfAttention2(hparams.head_num, hparams.head_dim, seed=self.seed)(
+        y = SelfAttention(hparams.head_num, hparams.head_dim, seed=self.seed, name="self_attention")(
             [click_title_presents] * 3
         )
         user_present = AttLayer2(hparams.attention_hidden_dim, seed=self.seed)(y)
 
         model = keras.Model(his_input_title, user_present, name="user_encoder")
+
+        self.att = model.get_layer("self_attention")
+
         return model
 
     def _build_newsencoder(self, embedding_layer):
@@ -132,7 +134,7 @@ class NRMSModel(BaseModel):
         embedded_sequences_title = embedding_layer(sequences_input_title)
 
         y = layers.Dropout(hparams.dropout)(embedded_sequences_title)
-        y = SelfAttention2(hparams.head_num, hparams.head_dim, seed=self.seed)([y, y, y])
+        y = SelfAttention(hparams.head_num, hparams.head_dim, seed=self.seed)([y, y, y])
         y = layers.Dropout(hparams.dropout)(y)
         pred_title = AttLayer2(hparams.attention_hidden_dim, seed=self.seed)(y)
 

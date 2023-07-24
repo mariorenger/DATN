@@ -4,6 +4,7 @@ from src.models.newsrec.models.resan import RESANModel
 from src.models.newsrec.models.naml import NAMLModel
 from src.models.newsrec.models.renaml import RENAMLModel
 from src.models.newsrec.models.nrms import NRMSModel
+from src.models.newsrec.models.renrms import RENRMSModel
 
 from src.models.newsrec.io.mind_all_iterator import MINDAllIterator
 from src.models.newsrec.newsrec_utils import get_mind_data_set
@@ -58,10 +59,13 @@ print(hparams)
 iterator = MINDAllIterator
 
 # My model(main) with denoising
-model = RESANModel(hparams, iterator, seed=seed)
+# model = RESANModel(hparams, iterator, seed=seed)
 
 # NAML model with denoising
 # model = RENAMLModel(hparams, iterator, seed=seed)
+
+# NAML model with denoising
+model = RENRMSModel(hparams, iterator, seed=seed)
 
 # Trainnig
 model.fit(train_news_file, train_behaviors_file, valid_news_file, valid_behaviors_file)
