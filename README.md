@@ -1,7 +1,7 @@
 # DATN
 
 ## Main model with denoising: RESANModel
-### Fiting
+### Fitting
 
 ```python
 model = RESANModel(hparams, iterator, seed=seed)
@@ -9,7 +9,7 @@ model.fit(train_news_file, train_behaviors_file, valid_news_file, valid_behavior
 ```
 
 ## NAML model with denoising: RENAMLModel
-### Fiting
+### Fitting
 
 ```python
 model = RENAMLModel(hparams, iterator, seed=seed)
