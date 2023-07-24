@@ -6,7 +6,7 @@ from tensorflow.keras import layers
 
 
 from src.models.newsrec.models.base_model import BaseModel
-from src.models.newsrec.models.layers import AttLayer2, SelfAttention
+from src.models.newsrec.models.layers import AttLayer2, SelfAttention2
 
 __all__ = ["NRMSModel"]
 
