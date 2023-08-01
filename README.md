@@ -1,5 +1,10 @@
 # DATN
 
+## Install requirements
+```bash
+pip install -r requirements.txt
+```
+
 ## Main model with denoising: RESANModel
 ### Fitting
 
